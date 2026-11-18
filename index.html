@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Relatório de Operação</title>
+<style>
+:root{
+  --bg:#eef0f3; --paper:#ffffff; --ink:#1c2230; --muted:#5b6475;
+  --line:#c9cfd9; --navy:#16305a; --gold:#a97c1f; --err:#b3261e; --ok:#1b6b3a; --card:#f5f6f9;
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#10141c; --paper:#1a202c; --ink:#e8ebf1; --muted:#9aa4b6; --line:#334055; --navy:#8fb0ea; --gold:#d9a93f; --err:#ff8a80; --ok:#6fd49a; --card:#212938;}
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Georgia,"Times New Roman",serif;line-height:1.45}
+.wrap{max-width:780px;margin:0 auto;padding:16px}
+header{background:var(--paper);border:1px solid var(--line);border-top:5px solid var(--navy);padding:18px 16px;text-align:center}
+header h1{margin:0 0 2px;font-size:1.45rem;color:var(--navy)}
+header p{margin:0;font-family:Arial,Helvetica,sans-serif;font-size:.9rem;color:var(--muted)}
+fieldset{background:var(--paper);border:1px solid var(--line);margin:16px 0;padding:6px 16px 16px;min-width:0}
+legend{padding:0 10px;font-weight:bold;font-size:1.05rem;color:var(--navy);border-bottom:2px solid var(--gold)}
+.grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px 14px;margin-top:10px}
+.c2{grid-column:span 2}.c3{grid-column:span 3}.c4{grid-column:span 4}.c6{grid-column:span 6}
+@media(max-width:620px){.c2,.c3,.c4{grid-column:span 6}}
+label{display:block;font-family:Arial,Helvetica,sans-serif;font-size:.84rem;font-weight:bold;margin-bottom:4px}
+label .req{color:var(--err)}
+input,select,textarea{width:100%;padding:11px 10px;font-size:1rem;font-family:Arial,Helvetica,sans-serif;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:3px}
+textarea{min-height:140px;resize:vertical}
+input:focus,select:focus,textarea:focus,button:focus-visible{outline:3px solid var(--gold);outline-offset:1px}
+.bad{border-color:var(--err)!important}
+.dica{font-family:Arial,Helvetica,sans-serif;font-size:.78rem;color:var(--muted);margin:3px 0 0}
+.checks{display:flex;flex-direction:column;gap:10px;margin-top:10px;font-family:Arial,Helvetica,sans-serif}
+.checks label{display:flex;align-items:center;gap:10px;font-weight:normal;font-size:.95rem;margin:0}
+.checks input{width:auto;transform:scale(1.2)}
+#guBox{display:grid;gap:12px;margin-top:12px}
+.gu{background:var(--card);border:1px solid var(--line);border-left:5px solid var(--navy);padding:12px 14px}
+.gu h3{margin:0 0 8px;font-size:1rem;color:var(--navy)}
+.gu .row{display:grid;grid-template-columns:90px 1fr;gap:8px;align-items:center;margin-top:8px}
+.gu .row span{font-family:Arial,Helvetica,sans-serif;font-size:.88rem;font-weight:bold}
+.gu .full{margin-top:0}
+canvas#sig{touch-action:none;background:#fff;border:1px dashed var(--line);width:100%;aspect-ratio:3/1;display:block;border-radius:3px;cursor:crosshair}
+button.sec{width:auto;padding:8px 14px;font-size:.9rem;background:transparent;color:var(--navy);border:1px solid var(--navy);margin-top:8px}
+#status a{display:inline-block;margin-top:8px;font-weight:bold;color:var(--navy)}
+button.alt{background:transparent;color:var(--navy);border:2px solid var(--navy);margin-top:10px}
+button{width:100%;padding:15px;font-size:1.05rem;font-weight:bold;font-family:Arial,Helvetica,sans-serif;color:#fff;background:var(--navy);border:0;border-radius:3px;cursor:pointer}
+@media(prefers-color-scheme:dark){button{color:#10141c}}
+button:disabled{opacity:.6;cursor:wait}
+#status{font-family:Arial,Helvetica,sans-serif;margin-top:12px;padding:12px;border-radius:3px;display:none}
+#status.ok{display:block;background:rgba(27,107,58,.12);color:var(--ok);border:1px solid var(--ok)}
+#status.err{display:block;background:rgba(179,38,30,.1);color:var(--err);border:1px solid var(--err)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>Relatório de Operação</h1>
+  <p>Preencha todos os campos marcados com *</p>
+</header>
+
+<form id="f" novalidate>
+<fieldset>
+  <legend>Dados da operação</legend>
+  <div class="grid">
+    <div class="c3"><label for="tipo">Tipo de serviço <span class="req">*</span></label>
+      <select id="tipo" name="tipo_servico" required><option value="">Selecione</option><option>Ordinário</option><option>Extraordinário</option></select></div>
+    <div class="c3"><label for="os">O.S / Acionamento <span class="req">*</span></label><input id="os" name="os_acionamento" required></div>
+    <div class="c6"><label for="oper">Nome da operação <span class="req">*</span></label><input id="oper" name="nome_operacao" required></div>
+    <div class="c6"><label for="area">Área / Local <span class="req">*</span></label><input id="area" name="area_local" required></div>
+    <div class="c2"><label for="data">Data <span class="req">*</span></label>
+      <input id="data" name="data" inputmode="numeric" maxlength="10" placeholder="DD/MM/AAAA" list="sugDatas" autocomplete="off" required>
+      <datalist id="sugDatas"></datalist></div>
+    <div class="c2"><label for="hini">Horário: início <span class="req">*</span></label>
+      <input id="hini" class="hora" name="horario_inicio" inputmode="numeric" maxlength="5" placeholder="HH:MM" autocomplete="off" required></div>
+    <div class="c2"><label for="hfim">Término <span class="req">*</span></label>
+      <input id="hfim" class="hora" name="horario_termino" inputmode="numeric" maxlength="5" placeholder="HH:MM" autocomplete="off" required></div>
+  </div>
+</fieldset>
+
+<fieldset>
+  <legend>Guarnições (GU)</legend>
+  <div class="grid"><div class="c3"><label for="qtd">Quantidade de GU <span class="req">*</span></label>
+    <select id="qtd" name="quantidade_gu" required></select></div></div>
+  <div id="guBox"></div>
+</fieldset>
+
+<fieldset>
+  <legend>Conclusão</legend>
+  <div class="grid"><div class="c6"><label for="concl">Conclusão / Descrição <span class="req">*</span></label><textarea id="concl" name="conclusao_descricao" required></textarea></div></div>
+  <div class="checks">
+    <label><input type="checkbox" name="uso_impo" value="Sim"> Utilização de IMPO</label>
+    <label><input type="checkbox" name="uso_municao_letal" value="Sim"> Utilização de munição letal</label>
+  </div>
+</fieldset>
+
+<fieldset>
+  <legend>Responsáveis</legend>
+  <div class="grid">
+    <div class="c6"><label for="prod">Produtor do relatório <span class="req">*</span></label><input id="prod" name="produtor_relatorio" required></div>
+  </div>
+</fieldset>
+
+<fieldset>
+  <legend>Anexo (opcional)</legend>
+  <div class="grid"><div class="c6"><label for="anexo">Anexar arquivo</label>
+    <input id="anexo" name="anexo_arquivo" type="file" accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png">
+    <p class="dica">PDF, JPG ou PNG, com até 5 MB.</p></div></div>
+</fieldset>
+
+<fieldset>
+  <legend>Assinatura</legend>
+  <div class="grid"><div class="c6"><label>Assinatura do comandante da operação <span class="req">*</span></label>
+    <canvas id="sig" width="600" height="200" aria-label="Área de assinatura"></canvas>
+    <p class="dica">Assine com o dedo ou o mouse dentro do quadro.</p>
+    <button type="button" class="sec" id="limpar">Limpar assinatura</button></div></div>
+</fieldset>
+
+<button type="submit" id="btn">Enviar relatório</button>
+<button type="button" class="alt" id="baixar">Baixar PDF preenchido</button>
+<div id="status" role="status" aria-live="polite"></div>
+</form>
+</div>
+
+<!-- Gerador de PDF (precisa de internet ao abrir a página) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+// ▼▼ COLE AQUI a URL do aplicativo da Web (Google Apps Script) ▼▼
+const URL_PLANILHA = "https://script.google.com/macros/s/AKfycby5QDR0PErj-sFM2bq_-30SNdTKS7rA5XWoCnn2XgSJ8vamOZV8SPinbhDnfB4FFsU/exec";
+
+const $ = s => document.querySelector(s);
+const form = $("#f"), statusEl = $("#status"), btn = $("#btn"), guBox = $("#guBox");
+const digits = v => v.replace(/\D/g, "");
+const p2 = n => String(n).padStart(2, "0");
+
+// Sugestões de data: hoje, ontem e anteontem
+(function(){
+  const dl = $("#sugDatas");
+  [0,1,2].forEach(i => {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    const o = document.createElement("option");
+    o.value = `${p2(d.getDate())}/${p2(d.getMonth()+1)}/${d.getFullYear()}`;
+    o.label = ["Hoje","Ontem","Anteontem"][i];
+    dl.appendChild(o);
+  });
+})();
+
+// Máscaras numéricas
+$("#data").addEventListener("input", e => {
+  e.target.value = digits(e.target.value).slice(0,8).replace(/(\d{2})(\d)/,"$1/$2").replace(/(\d{2})\/(\d{2})(\d)/,"$1/$2/$3");
+});
+document.querySelectorAll(".hora").forEach(inp => inp.addEventListener("input", e => {
+  e.target.value = digits(e.target.value).slice(0,4).replace(/(\d{2})(\d)/,"$1:$2");
+}));
+
+function dataValida(v){
+  const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(v);
+  if (!m) return false;
+  const d = +m[1], mo = +m[2], a = +m[3];
+  const dt = new Date(a, mo - 1, d);
+  return a >= 2000 && dt.getFullYear() === a && dt.getMonth() === mo - 1 && dt.getDate() === d;
+}
+function horaValida(v){
+  const m = /^(\d{2}):(\d{2})$/.exec(v);
+  return !!m && +m[1] < 24 && +m[2] < 60;
+}
+
+// Quantidade de GU (1 a 10)
+$("#qtd").innerHTML = '<option value="">Selecione</option>' + Array.from({length:10}, (_, i) => `<option>${i+1}</option>`).join("");
+
+function criarGU(n){
+  const d = document.createElement("div");
+  d.className = "gu"; d.dataset.n = n;
+  d.innerHTML = `
+    <h3>GU ${n}</h3>
+    <div class="full"><label for="gu${n}_barca">Nº da barca</label><input id="gu${n}_barca" name="gu${n}_barca"></div>
+    <div class="row"><span>01) Cmt:</span><input name="gu${n}_cmt" aria-label="GU ${n} – 01) Cmt" required></div>
+    <div class="row"><span>02) Mot:</span><input name="gu${n}_mot" aria-label="GU ${n} – 02) Mot" required></div>
+    <div class="row"><span>03) Pat:</span><input name="gu${n}_pat3" aria-label="GU ${n} – 03) Pat" required></div>
+    <div class="row"><span>04) Pat:</span><input name="gu${n}_pat4" aria-label="GU ${n} – 04) Pat" required></div>`;
+  return d;
+}
+$("#qtd").addEventListener("change", e => {
+  const n = +e.target.value || 0;
+  while (guBox.children.length < n) guBox.appendChild(criarGU(guBox.children.length + 1));
+  while (guBox.children.length > n) guBox.lastElementChild.remove();
+});
+
+// Assinatura
+const cv = $("#sig"), ctx = cv.getContext("2d");
+ctx.lineWidth = 3.5; ctx.lineCap = "round"; ctx.lineJoin = "round"; ctx.strokeStyle = "#000";
+let desenhando = false, assinou = false, ultimo = null;
+function posCv(e){ const r = cv.getBoundingClientRect(); return {x:(e.clientX-r.left)*cv.width/r.width, y:(e.clientY-r.top)*cv.height/r.height}; }
+cv.addEventListener("pointerdown", e => {
+  e.preventDefault(); cv.setPointerCapture(e.pointerId);
+  desenhando = true; ultimo = posCv(e);
+  ctx.beginPath(); ctx.moveTo(ultimo.x, ultimo.y); ctx.lineTo(ultimo.x+.1, ultimo.y+.1); ctx.stroke();
+  assinou = true; cv.classList.remove("bad");
+});
+cv.addEventListener("pointermove", e => {
+  if (!desenhando) return;
+  const p = posCv(e);
+  ctx.beginPath(); ctx.moveTo(ultimo.x, ultimo.y); ctx.lineTo(p.x, p.y); ctx.stroke(); ultimo = p;
+});
+["pointerup","pointercancel","pointerleave"].forEach(ev => cv.addEventListener(ev, () => desenhando = false));
+function limparAssinatura(){ ctx.clearRect(0, 0, cv.width, cv.height); assinou = false; }
+$("#limpar").addEventListener("click", limparAssinatura);
+
+// PDF no formato do Relatório de Operação
+function gerarPDF(d, assinaturaPNG){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({unit:"mm", format:"a4", compress:true});
+  const L = 12, R = 198, W = R - L, BOT = 284;
+  let y, pageTop;
+  doc.setLineWidth(.3);
+
+  const txt = (t, x, yy, o = {}) => {
+    doc.setFont("helvetica", o.b ? "bold" : "normal"); doc.setFontSize(o.s || 10);
+    doc.text(String(t), x, yy, o.align ? {align:o.align} : undefined);
+  };
+  const fit = (t, x, yy, maxW, size = 10) => {
+    t = String(t || ""); doc.setFont("helvetica", "normal");
+    let s = size; doc.setFontSize(s);
+    while (doc.getTextWidth(t) > maxW && s > 6){ s -= .5; doc.setFontSize(s); }
+    if (doc.getTextWidth(t) > maxW){
+      while (t.length > 1 && doc.getTextWidth(t + "...") > maxW) t = t.slice(0, -1);
+      t += "...";
+    }
+    doc.text(t, x, yy);
+  };
+  const campo = (label, val, x, yy, xEnd, b = true, size = 9) => {
+    txt(label, x, yy, {b, s:size});
+    const x0 = x + doc.getTextWidth(label) + 1.5;
+    doc.line(x0, yy + 1, xEnd, yy + 1);
+    fit(val, x0 + 1, yy - .3, xEnd - x0 - 2, 10);
+  };
+  const cb = (x, yy, on) => {
+    doc.rect(x, yy - 3, 3.6, 3.6);
+    if (on){ doc.line(x + .6, yy - 2.4, x + 3, yy); doc.line(x + 3, yy - 2.4, x + .6, yy); }
+  };
+  const fecharPagina = () => doc.rect(L, pageTop, W, y - pageTop);
+  const novaPagina = () => { doc.addPage(); y = 14; pageTop = y; };
+
+  // Cabeçalho
+  y = 14;
+  ["GOVERNO DO ESTADO DO PARÁ","SECRETARIA DE ESTADO DE SEGURANÇA PÚBLICA E DEFESA SOCIAL","POLÍCIA MILITAR DO PARÁ"]
+    .forEach(t => { txt(t, 105, y, {align:"center", s:9.5}); y += 5; });
+  txt("BATALHÃO DE RONDAS OSTENSIVAS TÁTICAS MOTORIZADAS", 105, y, {align:"center", b:1, s:9.5}); y += 2.5;
+  doc.line(L, y, R, y); y += 8;
+  txt("RELATÓRIO DE OPERAÇÃO", 105, y, {align:"center", b:1, s:13}); y += 5;
+  pageTop = y;
+
+  // Dados
+  y += 7;
+  txt("TIPO DE SERVIÇO:", L + 3, y, {b:1, s:9});
+  cb(52, y, d.tipo_servico === "Ordinário");      txt("ORDINÁRIO", 56.5, y, {b:1, s:9});
+  cb(88, y, d.tipo_servico === "Extraordinário"); txt("EXTRAORDINÁRIO", 92.5, y, {b:1, s:9});
+  y += 9; campo("O.S/ACIONAMENTO:", d.os_acionamento, L + 3, y, R - 3);
+  y += 9; campo("NOME DA OPERAÇÃO:", d.nome_operacao, L + 3, y, R - 3);
+  y += 9; campo("ÁREA/LOCAL:", d.area_local, L + 3, y, R - 3);
+  y += 9;
+  txt("DATA:", L + 3, y, {b:1, s:9});
+  const dp = String(d.data || "").split("/");
+  let sx = L + 3 + doc.getTextWidth("DATA:") + 2;
+  [[dp[0],10],[dp[1],10],[dp[2],16]].forEach(([v, w], i) => {
+    doc.line(sx, y + 1, sx + w, y + 1);
+    txt(v || "", sx + w / 2, y - .3, {align:"center", s:10});
+    sx += w;
+    if (i < 2){ txt("/", sx + 1.5, y, {s:10}); sx += 3; }
+  });
+  campo("HORÁRIO: INÍCIO:", d.horario_inicio, 88, y, 140);
+  campo("TÉRMINO:", d.horario_termino, 144, y, R - 3);
+  y += 5; doc.line(L, y, R, y);
+
+  // ROTAM
+  const n = +d.quantidade_gu || 0, colW = W / 3, cellH = 36;
+  let rowTop = y;
+  for (let i = 0; i < n; i++){
+    const col = i % 3;
+    if (col === 0){
+      if (y + cellH > BOT){ fecharPagina(); novaPagina(); }
+      rowTop = y;
+    }
+    const x = L + col * colW + 3, xEnd = L + (col + 1) * colW - 4;
+    let yy = rowTop + 6;
+    txt(`${i + 1}. ROTAM`, x, yy, {b:1, s:10});
+    const xb = x + doc.getTextWidth(`${i + 1}. ROTAM`) + 2;
+    doc.line(xb, yy + 1, xEnd, yy + 1);
+    fit(d[`gu${i+1}_barca`], xb + 1, yy - .3, xEnd - xb - 2, 10);
+    [["01) Cmt:","cmt"],["02) Mot:","mot"],["03) Pat:","pat3"],["04) Pat:","pat4"]].forEach(([lb, k]) => {
+      yy += 6.5;
+      campo(lb, d[`gu${i+1}_${k}`], x, yy, xEnd, false, 9.5);
+    });
+    if (col === 2 || i === n - 1){
+      y = rowTop + cellH;
+      doc.line(L + colW, rowTop, L + colW, y);
+      doc.line(L + 2 * colW, rowTop, L + 2 * colW, y);
+    }
+  }
+  if (n) doc.line(L, y, R, y);
+
+  // Conclusão
+  y += 6; txt("CONCLUSÃO:", L + 3, y, {b:1, s:9});
+  doc.setFont("helvetica", "normal"); doc.setFontSize(10);
+  const linhas = doc.splitTextToSize(String(d.conclusao_descricao || ""), W - 8);
+  for (let i = 0; i < Math.max(10, linhas.length); i++){
+    y += 6.5;
+    if (y > BOT - 2){ fecharPagina(); novaPagina(); y += 6.5; }
+    doc.line(L + 2, y + 1, R - 2, y + 1);
+    if (linhas[i]) txt(linhas[i], L + 3, y - .3, {s:10});
+  }
+
+  // Rodapé: IMPO, munição, assinatura
+  y += 9;
+  if (y + 64 > BOT){ fecharPagina(); novaPagina(); y += 9; }
+  cb(L + 10, y, d.uso_impo === "Sim");           txt("UTILIZAÇÃO DE IMPO.", L + 15, y, {b:1, s:10});
+  y += 9;
+  cb(L + 10, y, d.uso_municao_letal === "Sim");  txt("UTILIZAÇÃO DE MUNIÇÃO LETAL.", L + 15, y, {b:1, s:10});
+  y += 8;
+  if (assinaturaPNG) doc.addImage(assinaturaPNG, "PNG", 75, y, 60, 20);
+  y += 21; doc.line(65, y, 145, y);
+  y += 4.5; txt("COMANDANTE DA OPERAÇÃO", 105, y, {align:"center", b:1, s:9});
+  y += 6; fit("Relatório produzido por: " + (d.produtor_relatorio || ""), L + 3, y, W - 6, 8);
+  y += 5; fit("Data e hora do preenchimento: " + (d.preenchido_em || ""), L + 3, y, W - 6, 8);
+  y += 3; fecharPagina();
+
+  // Rodapé de página
+  const np = doc.getNumberOfPages(), ts = d.preenchido_em || "";
+  for (let i = 1; i <= np; i++){
+    doc.setPage(i); doc.setTextColor(120);
+    txt(`Preenchido em ${ts}` + (np > 1 ? `  ·  Página ${i}/${np}` : ""), 105, 292, {align:"center", s:7.5});
+    doc.setTextColor(0);
+  }
+  return doc;
+}
+function nomeArquivo(d){
+  const lim = s => String(s || "").replace(/[\\\/:*?"<>|]/g, "").trim();
+  const dp = String(d.data || "").split("/");           // DD/MM/AAAA → dia e mês
+  return `${dp[0]}-${dp[1]} - ${lim(d.nome_operacao)}.pdf`;
+}
+function sucessoComPDF(blob, nome){
+  statusEl.className = "ok"; statusEl.textContent = "Relatório enviado com sucesso. ";
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = nome; a.textContent = "Baixar PDF";
+  statusEl.appendChild(document.createElement("br")); statusEl.appendChild(a);
+  statusEl.scrollIntoView({behavior:"smooth", block:"center"});
+}
+
+function show(type, text){ statusEl.className = type; statusEl.textContent = text; statusEl.scrollIntoView({behavior:"smooth",block:"center"}); }
+
+const MAX_MB = 5, TIPOS_OK = ["application/pdf","image/jpeg","image/png"];
+function lerArquivo(file){
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res({nome: file.name, tipo: file.type, base64: String(r.result).split(",")[1]});
+    r.onerror = () => rej(new Error("Falha ao ler " + file.name));
+    r.readAsDataURL(file);
+  });
+}
+
+function validar(){
+  statusEl.className = ""; statusEl.style.display = "";
+  let ok = true, first = null;
+  form.querySelectorAll("input[required],select[required],textarea[required]").forEach(el => {
+    let bad = !el.value.trim();
+    if (el.id === "data" && el.value && !dataValida(el.value)) bad = true;
+    if (el.classList.contains("hora") && el.value && !horaValida(el.value)) bad = true;
+    el.classList.toggle("bad", bad);
+    if (bad){ ok = false; first = first || el; }
+  });
+  const an = $("#anexo"), fa = an.files[0];
+  const anexoRuim = !!fa && (fa.size > MAX_MB*1024*1024 || !TIPOS_OK.includes(fa.type));
+  an.classList.toggle("bad", anexoRuim);
+  if (anexoRuim){ ok = false; first = first || an; }
+  if (!assinou){ ok = false; cv.classList.add("bad"); first = first || cv; }
+  if (!ok){
+    first.focus(); first.scrollIntoView({behavior:"smooth", block:"center"});
+    show("err", "Revise os campos destacados (data DD/MM/AAAA, horários HH:MM, anexo em PDF/JPG/PNG de até 5 MB) e confirme se a assinatura foi feita.");
+    return false;
+  }
+  if (!window.jspdf){
+    show("err", "Não foi possível carregar o gerador de PDF. Verifique a internet e atualize a página.");
+    return false;
+  }
+  return true;
+}
+
+function coletar(){
+  const data = {};
+  new FormData(form).forEach((v, k) => { if (!(v instanceof File)) data[k] = v; });
+  data.uso_impo = form.uso_impo.checked ? "Sim" : "Não";
+  data.uso_municao_letal = form.uso_municao_letal.checked ? "Sim" : "Não";
+  const a = new Date();
+  data.preenchido_em = `${p2(a.getDate())}/${p2(a.getMonth()+1)}/${a.getFullYear()} ${p2(a.getHours())}:${p2(a.getMinutes())}:${p2(a.getSeconds())}`;
+  return data;
+}
+
+// Baixar o PDF preenchido (sem enviar)
+$("#baixar").addEventListener("click", () => {
+  if (!validar()) return;
+  const data = coletar();
+  const doc = gerarPDF(data, cv.toDataURL("image/png"));
+  const nome = nomeArquivo(data);
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(doc.output("blob")); a.download = nome;
+  document.body.appendChild(a); a.click(); a.remove();
+  show("ok", "PDF gerado com a data e hora do preenchimento (" + data.preenchido_em + "). Este botão apenas baixa o arquivo; para registrar na planilha, use \"Enviar relatório\".");
+});
+
+// Enviar para a planilha (+ PDF e anexo no Drive)
+form.addEventListener("submit", async e => {
+  e.preventDefault();
+  if (!validar()) return;
+  if (URL_PLANILHA.startsWith("COLE_AQUI")) return show("err", "Falta configurar a URL do Google Apps Script no arquivo HTML (veja a constante URL_PLANILHA).");
+
+  const data = coletar();
+  btn.disabled = true; btn.textContent = "Enviando…";
+  try{
+    const fa = $("#anexo").files[0];
+    if (fa) data.anexo_arquivo = await lerArquivo(fa);
+    const doc = gerarPDF(data, cv.toDataURL("image/png"));
+    const nomePdf = nomeArquivo(data), blobPdf = doc.output("blob");
+    data.pdf_nome = nomePdf;
+    data.pdf_base64 = doc.output("datauristring").split("base64,")[1];
+    await fetch(URL_PLANILHA, {
+      method: "POST",
+      mode: "no-cors",
+      headers: {"Content-Type": "text/plain;charset=utf-8"},
+      body: JSON.stringify(data)
+    });
+    form.reset(); guBox.innerHTML = ""; limparAssinatura();
+    sucessoComPDF(blobPdf, nomePdf);
+  }catch(err){
+    show("err", "Não foi possível enviar. Verifique sua conexão e tente novamente.");
+  }finally{
+    btn.disabled = false; btn.textContent = "Enviar relatório";
+  }
+});
+</script>
+</body>
+</html>
