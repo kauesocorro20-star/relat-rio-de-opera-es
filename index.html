@@ -173,10 +173,10 @@ function criarGU(n){
   d.innerHTML = `
     <h3>GU ${n}</h3>
     <div class="full"><label for="gu${n}_barca">Nº da barca</label><input id="gu${n}_barca" name="gu${n}_barca"></div>
-    <div class="row"><span>01) Cmt:</span><input name="gu${n}_cmt" aria-label="GU ${n} – 01) Cmt" required></div>
-    <div class="row"><span>02) Mot:</span><input name="gu${n}_mot" aria-label="GU ${n} – 02) Mot" required></div>
-    <div class="row"><span>03) Pat:</span><input name="gu${n}_pat3" aria-label="GU ${n} – 03) Pat" required></div>
-    <div class="row"><span>04) Pat:</span><input name="gu${n}_pat4" aria-label="GU ${n} – 04) Pat" required></div>`;
+    <div class="row"><span>01) Cmt:</span><input name="gu${n}_cmt" aria-label="GU ${n} – 01) Cmt"></div>
+    <div class="row"><span>02) Mot:</span><input name="gu${n}_mot" aria-label="GU ${n} – 02) Mot"></div>
+    <div class="row"><span>03) Pat:</span><input name="gu${n}_pat3" aria-label="GU ${n} – 03) Pat"></div>
+    <div class="row"><span>04) Pat:</span><input name="gu${n}_pat4" aria-label="GU ${n} – 04) Pat"></div>`;
   return d;
 }
 $("#qtd").addEventListener("change", e => {
